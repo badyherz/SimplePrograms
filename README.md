@@ -12,26 +12,34 @@ I'm sharing these here because maybe someone finds them as helpful as I do.
 Just download what you want from the newest [release](https://github.com/badyherz/SimplePrograms/releases)!
 
 ## Below is a list of the programs:
-____________________________________
 
 **Bulk File Renamer for Series**
+
 This was created for renaming series for home media use, because who wants to rename 30 files or so?
 Can be useful for general renaming too.
+
 .
 
 **EXE File Search**
+
 This lets you search for .EXE files in folders and sort them. Created because I wanted to find a specific old hidden program.
+
 .
 
 **GIF to PNG Converter**
+
 With this you can extract all the frames of a .GIF and save them in a folder to .PNG.
 Used for creating manual gifs.
+
 .
 
 **HEX Encoder and Decoder**
+
 Well. You can Encode and Decode Hexadecimal Code. Used for hidden messages in games.
+
 .
 
 **Text Comparator**
+
 This can compare to strings of text for you and highlights the difference.
 I used it to compare hash codes.
