@@ -58,7 +58,8 @@ class SeriesTrackerApp:
             return
 
         series = {"name": name, "episodes": episodes, "current_season": 0, "current_episode": 0}
-        self.series_data.append(series)
+        # Insert at the beginning to make newest at top
+        self.series_data.insert(0, series)
         self.refresh_display()
 
     def next_episode(self, index):
@@ -69,7 +70,9 @@ class SeriesTrackerApp:
             if series["current_episode"] >= series["episodes"][series["current_season"]]:
                 series["current_season"] += 1
                 series["current_episode"] = 0
-        self.series_data[real_index] = series
+        # Move updated series to top
+        self.series_data.pop(real_index)
+        self.series_data.insert(0, series)
         self.refresh_display()
 
     def previous_episode(self, index):
@@ -80,7 +83,9 @@ class SeriesTrackerApp:
         elif series["current_season"] > 0:
             series["current_season"] -= 1
             series["current_episode"] = series["episodes"][series["current_season"]] - 1
-        self.series_data[real_index] = series
+        # Move updated series to top
+        self.series_data.pop(real_index)
+        self.series_data.insert(0, series)
         self.refresh_display()
 
     def delete_series(self, index):
@@ -91,7 +96,7 @@ class SeriesTrackerApp:
 
     def archive_series(self, index):
         series = self.filtered_data[index]
-        self.archive_data.append(series)
+        self.archive_data.insert(0, series)  # newest archived on top
         self.series_data.remove(series)
         self.refresh_display()
 
@@ -155,8 +160,8 @@ class SeriesTrackerApp:
 
             button_frame = tk.Frame(container)
             button_frame.pack(anchor='w')
-            tk.Button(button_frame, text="-", command=lambda i=i: self.previous_episode(i)).pack(side=tk.LEFT)
-            tk.Button(button_frame, text="+", command=lambda i=i: self.next_episode(i)).pack(side=tk.LEFT)
+            tk.Button(button_frame, text="-", font=("Arial", 12, "bold"), command=lambda i=i: self.previous_episode(i)).pack(side=tk.LEFT, padx=5)
+            tk.Button(button_frame, text="+", font=("Arial", 12, "bold"), command=lambda i=i: self.next_episode(i)).pack(side=tk.LEFT)
             tk.Button(button_frame, text="Delete", command=lambda i=i: self.delete_series(i)).pack(side=tk.LEFT, padx=5)
             tk.Button(button_frame, text="Archive", command=lambda i=i: self.archive_series(i)).pack(side=tk.LEFT)
 
