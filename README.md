@@ -60,3 +60,21 @@ This can compare to strings of text for you and highlights the difference.
 I used it to compare hash codes.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+**Metadata Cleaner**
+
+Simple program to delete almost all metdata from images and videos (need FFmpeg for videos). I used it for uploading simple images onto the internet.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+**Bulk File Extension Renamer**
+
+A program to rename the file extension on one or mutiple files. This does not convert them! But if you know what you're doing, this can be handy. Used it in multiple ways, like changing .webp to .jpg.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+**Bulk File Name Renamer**
+
+A program to change or delete specific file name parts of one or mutiple files.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
