@@ -1,5 +1,5 @@
 Simple Programs: Simple Expense Manager
-Powered by Python
+powered by Python
 
 This README is just for some more information on the program.
 There are some nice features for a better user experience, but some are missing or need a bit of manual work.
