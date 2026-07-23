@@ -1,0 +1,106 @@
+{
+    "currency": "\u20ac",
+    "years": {
+        "yyyy": {
+            "January": {
+                "Electricity": 69.69,
+                "Groceries": 420.69
+            },
+            "February": {
+                "Electricity": 0,
+                "Groceries": 0
+            },
+            "March": {
+                "Electricity": 0,
+                "Groceries": 0
+            },
+            "April": {
+                "Electricity": 0,
+                "Groceries": 0
+            },
+            "May": {
+                "Electricity": 0,
+                "Groceries": 0
+            },
+            "June": {
+                "Electricity": 0,
+                "Groceries": 0
+            },
+            "July": {
+                "Electricity": 0,
+                "Groceries": 0
+            },
+            "August": {
+                "Electricity": 0,
+                "Groceries": 0
+            },
+            "September": {
+                "Electricity": 0,
+                "Groceries": 0
+            },
+            "October": {
+                "Electricity": 0,
+                "Groceries": 0
+            },
+            "November": {
+                "Electricity": 0,
+                "Groceries": 0
+            },
+            "December": {
+                "Electricity": 0,
+                "Groceries": 0
+            }
+        },
+		"yyyy": {
+            "January": {
+                "Electricity": 69.69,
+                "Groceries": 420.69
+            },
+            "February": {
+                "Electricity": 0,
+                "Groceries": 0
+            },
+            "March": {
+                "Electricity": 0,
+                "Groceries": 0
+            },
+            "April": {
+                "Electricity": 0,
+                "Groceries": 0
+            },
+            "May": {
+                "Electricity": 0,
+                "Groceries": 0
+            },
+            "June": {
+                "Electricity": 0,
+                "Groceries": 0
+            },
+            "July": {
+                "Electricity": 0,
+                "Groceries": 0
+            },
+            "August": {
+                "Electricity": 0,
+                "Groceries": 0
+            },
+            "September": {
+                "Electricity": 0,
+                "Groceries": 0
+            },
+            "October": {
+                "Electricity": 0,
+                "Groceries": 0
+            },
+            "November": {
+                "Electricity": 0,
+                "Groceries": 0
+            },
+            "December": {
+                "Electricity": 0,
+                "Groceries": 0
+            }
+        }
+    },
+    "language": "english"
+}
