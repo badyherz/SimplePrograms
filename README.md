@@ -13,6 +13,7 @@ Feel free to edit or improve them.
 Yes, they are really simple and lack design and cohesion, but they work, and that's the point.
 If you encounter any problems, open an issue, and I'll try to have a look at it.
 
+I build them for Windows with PyInstaller. (Maybe in the future for Linux too)
 Just download what you want from the newest [release](https://github.com/badyherz/SimplePrograms/releases)!
 
 ## Below is a list of the programs A to Z:
