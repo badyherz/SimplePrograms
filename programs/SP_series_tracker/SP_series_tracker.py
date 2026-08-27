@@ -2,13 +2,17 @@ import tkinter as tk
 from tkinter import ttk, messagebox, filedialog
 import json
 import os
+from pathlib import Path
 import sys
 import shutil
 import uuid
 import colorsys
 
-from SP_footer_picture import add_footer
-from SP_window_utils import center_window
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
+
+from helper.SP_footer_picture import add_footer
+from helper.SP_window_utils import center_window
 
 OLD_DOCUMENTS_DIR = os.path.join(os.path.expanduser("~"), "Documents", "Series Tracker")
 OLD_DATA_FILENAME = os.path.join(OLD_DOCUMENTS_DIR, "series_tracker_data.json")
@@ -41,9 +45,7 @@ class SeriesTrackerApp:
         self.rainbow_enabled = False  #Effect starts OFF by default
         self._default_label_fg = "black"
         center_window(self.root)
-
-        #Adds footer, needs footer.png
-        add_footer(root, image_path="footer.png")
+        add_footer(root, image_path="assets/footer.png")
 
         self.setup_ui()
         self.load_data()

@@ -371,11 +371,9 @@ root.columnconfigure(0, weight=0)
 root.rowconfigure(0, weight=0)
 top_frame = tk.Frame(root)
 top_frame.pack(fill="x", padx=10, pady=10)
+add_footer(root, image_path="assets/footer.png") 
 if WINDOW_BACKGROUND_COLOR:
     root.configure(bg=WINDOW_BACKGROUND_COLOR)
-
-#Adds footer, needs footer.png
-add_footer(root, image_path="assets/footer.png") 
 
 # ====================================
 # Toolbar

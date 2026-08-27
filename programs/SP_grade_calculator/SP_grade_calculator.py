@@ -7,9 +7,14 @@ from datetime import datetime
 from pathlib import Path
 from tkinter import filedialog, messagebox, ttk
 import tkinter as tk
+from pathlib import Path
+import sys
 
-from SP_footer_picture import add_footer
-from SP_window_utils import center_window
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
+
+from helper.SP_footer_picture import add_footer
+from helper.SP_window_utils import center_window
 
 # --- Constants ---
 # A common default grading scale (used as a placeholder/example, and as a
@@ -712,7 +717,7 @@ class GradeCalculatorApp:
         self.root.title("Grade Calculator")
         self.root.geometry("820x900")
         self.root.minsize(820, 690)
-        add_footer(root, image_path="footer.png")
+        add_footer(root, image_path="assets/footer.png")
         center_window(root)
 
         self.notebook = ttk.Notebook(root)

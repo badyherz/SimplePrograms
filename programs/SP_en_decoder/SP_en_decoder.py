@@ -1,8 +1,13 @@
 import tkinter as tk
 import tkinter.font as tkFont
+from pathlib import Path
+import sys
 
-from SP_footer_picture import add_footer
-from SP_window_utils import center_window
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
+
+from helper.SP_footer_picture import add_footer
+from helper.SP_window_utils import center_window
 
 GROUP_BORDER_COLOR = "#A7A7A7"
 WINDOW_BACKGROUND_COLOR = "#E6E6E6"
@@ -30,7 +35,7 @@ root.withdraw()
 root.title("Text Encoder and Decoder")
 root.geometry("740x420")
 root.minsize(740,420)
-add_footer(root, image_path="footer.png")
+add_footer(root, image_path="assets/footer.png")
 if WINDOW_BACKGROUND_COLOR:
     root.configure(bg=WINDOW_BACKGROUND_COLOR)
 center_window(root)
