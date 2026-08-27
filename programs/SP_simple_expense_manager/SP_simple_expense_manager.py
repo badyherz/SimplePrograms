@@ -9,9 +9,13 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import csv
 import shutil
+import sys
 
-from SP_footer_picture import add_footer
-from SP_window_utils import center_window
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
+
+from helper.SP_footer_picture import add_footer
+from helper.SP_window_utils import center_window
 
 # ====================================
 # Main Data Naming
@@ -371,7 +375,7 @@ if WINDOW_BACKGROUND_COLOR:
     root.configure(bg=WINDOW_BACKGROUND_COLOR)
 
 #Adds footer, needs footer.png
-add_footer(root, image_path="footer.png")
+add_footer(root, image_path="assets/footer.png") 
 
 # ====================================
 # Toolbar

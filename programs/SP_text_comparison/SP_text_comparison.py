@@ -4,9 +4,14 @@ from tkinter import messagebox
 from difflib import SequenceMatcher
 import os
 import json
+from pathlib import Path
+import sys
 
-from SP_footer_picture import add_footer
-from SP_window_utils import center_window
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
+
+from helper.SP_footer_picture import add_footer
+from helper.SP_window_utils import center_window
 
 DOCUMENTS_DIR = os.path.join(os.path.expanduser("~"), "Documents", "SimplePrograms", "Text Comparison")
 os.makedirs(DOCUMENTS_DIR, exist_ok=True)
@@ -277,7 +282,7 @@ def create_gui():
 
     footer_frame = tk.Frame(window)
     footer_frame.grid(row=1, column=0, sticky="ew")
-    add_footer(footer_frame, image_path="footer.png")
+    add_footer(footer_frame, image_path="assets/footer.png") 
 
     content.grid_rowconfigure(1, weight=1)
     content.grid_columnconfigure(0, weight=1)

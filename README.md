@@ -71,7 +71,7 @@ This lets you track tv series. Add and remove episodes. Has a progress bar. An a
 
 **Simple Expense Manager**
 
-A program to, at the moment, track electricity and grocery expenses with all the necessary statistics and even charts. Settings for different currencies and language file support. Data import/export and a simple backup system if something goes wrong.
+A program to, at the moment, track electricity and grocery expenses with all the necessary statistics and even charts. Settings for different currencies and language file support. Data import/export and a simple backup system if something goes wrong. More information on setup [here](https://github.com/badyherz/SimplePrograms/tree/main/programs/SP_simple_expense_manager)!
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 

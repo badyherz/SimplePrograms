@@ -1,6 +1,10 @@
 """
 #Placing the code:
 
+    import sys
+    from pathlib import Path
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "helper"))
+
     import tkinter as tk
     from SP_footer_picture import add_footer
 
@@ -8,7 +12,7 @@
     root.title("Hello World")
     root.geometry("600x400")
 
-    add_footer(root, image_path="footer.png")  
+    add_footer(root, image_path="assets/footer.png")  
 
 #Needs do be one of the first .pack calls
 
@@ -23,11 +27,11 @@ def resource_path(relative_path):
     if hasattr(sys, "_MEIPASS"):
         base_path = sys._MEIPASS
     else:
-        base_path = os.path.dirname(os.path.abspath(__file__))
+        base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     return os.path.join(base_path, relative_path)
 
 
-def add_footer(root, image_path="footer.png", background=None):
+def add_footer(root, image_path="assets/footer.png", background=None):
     resolved_path = resource_path(image_path)
     
     if not Path(resolved_path).exists():
