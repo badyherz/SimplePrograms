@@ -2,9 +2,10 @@
 A Growing collection of random tools and programs.
 
 This collection includes just some simple, helpful programs.
-They exist either because I don't want to use online services or couldn't find anything that is simple enough.
+They exist either because I don't want to use online services or couldn't find anything that is simple enough (As in doing something very specific).
 
 All of them are created with the help of chatGPT and other tools/internet help, and all are written in Python because I'm not great at coding at all.
+(And I kinda enjoy Python)
 
 I will add more when I create more. And I only make them when I need them.
 I'm sharing these here because maybe someone finds them as helpful as I do.
@@ -14,7 +15,7 @@ Yes, they are really simple and lack design and cohesion, but they work, and tha
 If you encounter any problems, open an issue, and I'll try to have a look at it.
 
 I build them for Windows with PyInstaller. (Maybe in the future for Linux too)
-Just download what you want from the newest [release](https://github.com/badyherz/SimplePrograms/releases)!
+Just download what you want from the newest [release](https://github.com/badyherz/SimplePrograms/releases)! Or build them yourself!
 
 ## Below is a list of the programs A to Z:
 
