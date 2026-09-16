@@ -14,6 +14,8 @@ sys.path.insert(0, str(PROJECT_ROOT))
 from helper.SP_footer_picture import add_footer
 from helper.SP_window_utils import center_window
 
+
+# --- Configuration ---
 OLD_DOCUMENTS_DIR = os.path.join(os.path.expanduser("~"), "Documents", "Series Tracker")
 OLD_DATA_FILENAME = os.path.join(OLD_DOCUMENTS_DIR, "series_tracker_data.json")
 
@@ -23,6 +25,10 @@ DATA_FILENAME = os.path.join(DOCUMENTS_DIR, "series_tracker_data.json")
 
 WINDOW_BACKGROUND_COLOR = "#E6E6E6"
 
+HINT_COLOR = "#1B5FA8"
+DANGER_COLOR = "#C55E5E"
+GO_COLOR = "#3A8B63"
+
 # One-time migration: bring existing data over from the old folder, if any.
 if not os.path.exists(DATA_FILENAME) and os.path.exists(OLD_DATA_FILENAME):
     try:
@@ -30,6 +36,8 @@ if not os.path.exists(DATA_FILENAME) and os.path.exists(OLD_DATA_FILENAME):
     except OSError:
         pass
 
+
+# --- Application ---
 class SeriesTrackerApp:
     def __init__(self, root):
         self.root = root
@@ -44,8 +52,9 @@ class SeriesTrackerApp:
         self.completed_labels = []
         self.rainbow_enabled = False  #Effect starts OFF by default
         self._default_label_fg = "black"
-        center_window(self.root)
         add_footer(root, image_path="assets/footer.png")
+        center_window(root)
+        
 
         self.setup_ui()
         self.load_data()

@@ -23,15 +23,14 @@ try:
 except ImportError:
     HEIF_SUPPORTED = False
 
-DOCUMENTS_DIR = os.path.join(os.path.expanduser("~"), "Documents", "SimplePrograms", "Metadata Remover")
-os.makedirs(DOCUMENTS_DIR, exist_ok=True)
-
 IMAGE_EXTENSIONS = (".jpg", ".jpeg", ".jfif", ".png", ".bmp", ".gif", ".tif", ".tiff", ".webp")
 if HEIF_SUPPORTED:
     IMAGE_EXTENSIONS += (".heic", ".heif")
 VIDEO_EXTENSIONS = (".mp4", ".mov", ".avi", ".mkv")
 SUPPORTED_EXTENSIONS = IMAGE_EXTENSIONS + VIDEO_EXTENSIONS
 
+
+# --- Configuration ---
 WINDOW_BACKGROUND_COLOR = "#E6E6E6"
 GROUP_BORDER_COLOR = "#A7A7A7"
 BOX_BORDER_THICKNESS = 0.5
@@ -39,18 +38,29 @@ BOX_INTERNAL_PADDING = 4
 BOX_EXTERNAL_PADDING = 10
 BUTTON_WIDTH = 20
 
+HINT_COLOR = "#1B5FA8"
+DANGER_COLOR = "#C55E5E"
+GO_COLOR = "#3A8B63"
+
 PREVIEW_THUMBNAIL_SIZE = (140, 140)   # actual image thumbnail max width/height, in pixels
 PREVIEW_PLACEHOLDER_SIZE = (18, 8) 
 PREVIEW_COLUMNS = 3
 
+DOCUMENTS_DIR = os.path.join(os.path.expanduser("~"), "Documents", "SimplePrograms", "Metadata Remover")
+os.makedirs(DOCUMENTS_DIR, exist_ok=True)
+
+
+# --- Helper Functions ---
 def open_folder(path):
-    """Open a folder in the OS file explorer (Windows/macOS/Linux)."""
-    if os.name == "nt":
-        os.startfile(path)
-    elif shutil.which("open"):
-        subprocess.run(["open", path])
-    else:
-        subprocess.run(["xdg-open", path])
+    try:
+        if os.name == "nt":
+            os.startfile(path)
+        elif sys.platform.startswith("darwin"):
+            subprocess.run(["open", path])
+        else:
+            subprocess.run(["xdg-open", path])
+    except Exception as error:
+        messagebox.showerror("Error", f"Cannot open folder:\n{error}")
 
 
 def get_unique_destination_path(directory, filename):
@@ -62,8 +72,9 @@ def get_unique_destination_path(directory, filename):
         counter += 1
     return candidate
 
-class MetadataRemoverApp:
 
+# --- Application ---
+class MetadataRemoverApp:
     def __init__(self, root):
         self.root = root
         self.root.title("Photo & Video Metadata Remover")
@@ -72,7 +83,7 @@ class MetadataRemoverApp:
         add_footer(root, image_path="assets/footer.png") 
         if WINDOW_BACKGROUND_COLOR:
             root.configure(bg=WINDOW_BACKGROUND_COLOR)
-        center_window(self.root)
+        center_window(root)
         
         self.file_paths = []
         self.ffmpeg_path = self.find_ffmpeg()
@@ -98,10 +109,10 @@ class MetadataRemoverApp:
         progress_style.configure(
             "Custom.Horizontal.TProgressbar",
             troughcolor="#929292",
-            background="#3A8B63",
+            background=GO_COLOR,
             bordercolor="#929292",
-            lightcolor="#3A8B63",
-            darkcolor="#3A8B63",
+            lightcolor=GO_COLOR,
+            darkcolor=GO_COLOR,
         )
 
         self.progress_bar = ttk.Progressbar(
@@ -151,7 +162,7 @@ class MetadataRemoverApp:
         action_box.pack(fill="x", anchor="nw")
 
         self.delete_button = tk.Button(
-            action_box, text="Delete Metadata",font=button_font, fg="#C55E5E", width=BUTTON_WIDTH,
+            action_box, text="Delete Metadata",font=button_font, fg=DANGER_COLOR, width=BUTTON_WIDTH,
             command=self.confirm_delete, state=tk.DISABLED,
         )
         self.delete_button.pack(padx=BOX_INTERNAL_PADDING, pady=(BOX_INTERNAL_PADDING, 5))
@@ -451,6 +462,7 @@ class MetadataRemoverApp:
             raise RuntimeError(last_line)
 
         return dest_path
+
 
 if __name__ == "__main__":
     root = tk.Tk()

@@ -13,10 +13,17 @@ sys.path.insert(0, str(PROJECT_ROOT))
 from helper.SP_footer_picture import add_footer
 from helper.SP_window_utils import center_window
 
-# --- Style constants ---
-GROUP_BORDER_COLOR = "#A7A7A7"
+# --- Configuration ---
 WINDOW_BACKGROUND_COLOR = "#E6E6E6"
+GROUP_BORDER_COLOR = "#A7A7A7"
 SIDEBAR_WIDTH = 210
+BOX_BORDER_THICKNESS = 0.5
+BOX_INTERNAL_PADDING = 4
+BOX_EXTERNAL_PADDING = 10
+
+HINT_COLOR = "#1B5FA8"
+DANGER_COLOR = "#C55E5E"
+GO_COLOR = "#3A8B63"
 
 # --- Codec definitions ---
 # Every entry in CODECS below fully describes one method: how to encode
@@ -27,43 +34,28 @@ SIDEBAR_WIDTH = 210
 # or binascii.Error, which are both ValueError subclasses) on invalid input -
 # this is caught generically wherever a codec is used.
 
-
 def _hex_encode(text):
     return text.encode("utf-8").hex()
-
-
 def _hex_decode(text):
     return bytes.fromhex(text).decode("utf-8")
 
-
 def _base64_encode(text):
     return base64.b64encode(text.encode("utf-8")).decode("ascii")
-
-
 def _base64_decode(text):
     return base64.b64decode(text.encode("ascii"), validate=True).decode("utf-8")
 
-
 def _base32_encode(text):
     return base64.b32encode(text.encode("utf-8")).decode("ascii")
-
-
 def _base32_decode(text):
     return base64.b32decode(text.encode("ascii")).decode("utf-8")
 
-
 def _base85_encode(text):
     return base64.b85encode(text.encode("utf-8")).decode("ascii")
-
-
 def _base85_decode(text):
     return base64.b85decode(text.encode("ascii")).decode("utf-8")
 
-
 def _binary_encode(text):
     return " ".join(format(b, "08b") for b in text.encode("utf-8"))
-
-
 def _binary_decode(text):
     chunks = text.split()
     if not chunks:
@@ -76,11 +68,8 @@ def _binary_decode(text):
         values.append(value)
     return bytes(values).decode("utf-8")
 
-
 def _octal_encode(text):
     return " ".join(format(b, "03o") for b in text.encode("utf-8"))
-
-
 def _octal_decode(text):
     chunks = text.split()
     if not chunks:
@@ -93,21 +82,15 @@ def _octal_decode(text):
         values.append(value)
     return bytes(values).decode("utf-8")
 
-
 def _url_encode(text):
     return urllib.parse.quote(text, safe="")
-
-
 def _url_decode(text):
     return urllib.parse.unquote(text, errors="strict")
 
 def _rot13_encode(text):
     return codecs.encode(text, "rot13")
-
-
 def _rot13_decode(text):
     return codecs.encode(text, "rot13")  # ROT13 is its own inverse
-
 
 def _atbash_encode(text):
     result = []
@@ -119,8 +102,6 @@ def _atbash_encode(text):
         else:
             result.append(ch)
     return "".join(result)
-
-
 def _atbash_decode(text):
     return _atbash_encode(text)  # mirroring the alphabet twice returns the original
 
@@ -139,8 +120,6 @@ MORSE_CODE = {
     '"': ".-..-.", "$": "...-..-", "@": ".--.-.",
 }
 REVERSE_MORSE = {code: char for char, code in MORSE_CODE.items()}
-
-
 def _morse_encode(text):
     # Words (split on whitespace) are separated by " / "; letters within a
     # word are separated by a single space.
@@ -153,8 +132,6 @@ def _morse_encode(text):
             letters.append(MORSE_CODE[ch])
         encoded_words.append(" ".join(letters))
     return " / ".join(encoded_words)
-
-
 def _morse_decode(text):
     text = text.strip()
     if not text:
@@ -183,8 +160,6 @@ NATO_WORDS = {
 REVERSE_NATO = {word.upper(): char for char, word in NATO_WORDS.items()}
 SPACE_TOKEN = "//"  # two characters, so it can never collide with a single
                      # passed-through character (see _nato_encode/_a1z26_encode)
-
-
 def _nato_encode(text):
     tokens = []
     for ch in text:
@@ -195,8 +170,6 @@ def _nato_encode(text):
         else:
             tokens.append(ch)
     return " ".join(tokens)
-
-
 def _nato_decode(text):
     chars = []
     for token in text.split():
@@ -210,7 +183,6 @@ def _nato_decode(text):
             raise ValueError(f"'{token}' is not a recognized NATO alphabet word")
     return "".join(chars)
 
-
 def _a1z26_encode(text):
     tokens = []
     for ch in text:
@@ -221,8 +193,6 @@ def _a1z26_encode(text):
         else:
             tokens.append(ch)
     return " ".join(tokens)
-
-
 def _a1z26_decode(text):
     chars = []
     for token in text.split():
@@ -239,16 +209,12 @@ def _a1z26_decode(text):
 
 LEET_MAP = {"a": "4", "b": "8", "e": "3", "g": "9", "i": "1", "o": "0", "s": "5", "t": "7"}
 REVERSE_LEET = {digit: letter for letter, digit in LEET_MAP.items()}
-
-
 def _leet_encode(text):
     return "".join(LEET_MAP.get(ch.lower(), ch) for ch in text)
-
-
 def _leet_decode(text):
     return "".join(REVERSE_LEET.get(ch, ch) for ch in text)
 
-
+# --- Codec registry ---
 CODECS = {
     "Hex": {
         "encode": _hex_encode,
@@ -367,7 +333,7 @@ app_state = {
 visible_methods = list(METHOD_NAMES)  # methods currently shown in the listbox (after search filtering)
 
 
-# --- Core logic ---
+# --- Helper Functions ---
 def _apply_transform():
     method = app_state["selected_method"]
     mode = app_state["mode"]
@@ -467,7 +433,7 @@ def _filter_methods(*_args):
         method_listbox.selection_set(visible_methods.index(app_state["selected_method"]))
 
 
-# --- Main window setup ---
+# --- Application ---
 root = tk.Tk()
 root.withdraw()
 root.title("Text Encoder and Decoder")
@@ -482,7 +448,7 @@ label_font = tkFont.Font(family="Arial", size=10, weight="bold")
 text_other_font = tkFont.Font(family="Arial", size=10)
 
 main_frame = tk.Frame(root, bg=WINDOW_BACKGROUND_COLOR)
-main_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+main_frame.pack(fill=tk.BOTH, expand=True, padx=BOX_EXTERNAL_PADDING, pady=BOX_EXTERNAL_PADDING)
 main_frame.columnconfigure(0, weight=0)
 main_frame.columnconfigure(1, weight=1)
 main_frame.rowconfigure(0, weight=1)
@@ -493,7 +459,7 @@ sidebar_frame = tk.Frame(
     width=SIDEBAR_WIDTH,
     bg=WINDOW_BACKGROUND_COLOR,
     highlightbackground=GROUP_BORDER_COLOR,
-    highlightthickness=1,
+    highlightthickness=BOX_BORDER_THICKNESS,
 )
 sidebar_frame.grid(row=0, column=0, sticky="nsew", padx=(0, 10))
 sidebar_frame.grid_propagate(False)
@@ -503,15 +469,15 @@ sidebar_frame.rowconfigure(2, weight=1)
 sidebar_title = tk.Label(
     sidebar_frame, text="Methods", font=label_font, bg=WINDOW_BACKGROUND_COLOR, anchor="w"
 )
-sidebar_title.grid(row=0, column=0, sticky="ew", padx=8, pady=(8, 4))
+sidebar_title.grid(row=0, column=0, sticky="ew", padx=BOX_INTERNAL_PADDING, pady=(8, 4))
 
 search_var = tk.StringVar()
 search_entry = tk.Entry(sidebar_frame, textvariable=search_var)
-search_entry.grid(row=1, column=0, sticky="ew", padx=8, pady=(0, 6))
+search_entry.grid(row=1, column=0, sticky="ew", padx=BOX_INTERNAL_PADDING, pady=(0, 6))
 search_var.trace_add("write", _filter_methods)
 
 list_frame = tk.Frame(sidebar_frame)
-list_frame.grid(row=2, column=0, sticky="nsew", padx=8, pady=(0, 8))
+list_frame.grid(row=2, column=0, sticky="nsew", padx=BOX_INTERNAL_PADDING, pady=(0, 8))
 list_frame.rowconfigure(0, weight=1)
 list_frame.columnconfigure(0, weight=1)
 
@@ -535,12 +501,12 @@ content_frame = tk.Frame(
     main_frame,
     bg=WINDOW_BACKGROUND_COLOR,
     highlightbackground=GROUP_BORDER_COLOR,
-    highlightthickness=1,
+    highlightthickness=BOX_BORDER_THICKNESS,
 )
 content_frame.grid(row=0, column=1, sticky="nsew")
 content_frame.columnconfigure(0, weight=1)
-content_frame.rowconfigure(2, weight=1)  # input text field expands
-content_frame.rowconfigure(5, weight=1)  # output text field expands
+content_frame.rowconfigure(2, weight=1)
+content_frame.rowconfigure(5, weight=1)
 
 status_frame = tk.Frame(content_frame, bg=WINDOW_BACKGROUND_COLOR)
 status_frame.grid(row=0, column=0, sticky="ew", padx=8, pady=(8, 4))
@@ -550,7 +516,7 @@ status_label = tk.Label(
     status_frame,
     text="Select a method from the list on the left to enable encoding and decoding.",
     font=text_other_font,
-    fg="#5E5E5E",
+    fg=HINT_COLOR,
     bg=WINDOW_BACKGROUND_COLOR,
     anchor="w",
     justify="left",
@@ -615,6 +581,7 @@ output_field = tk.Text(
 output_scrollbar.config(command=output_field.yview)
 output_field.grid(row=0, column=0, sticky="nsew")
 output_scrollbar.grid(row=0, column=1, sticky="ns")
+
 
 # --- Run application ---
 root.deiconify()

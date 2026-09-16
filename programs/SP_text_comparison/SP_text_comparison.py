@@ -17,17 +17,17 @@ DOCUMENTS_DIR = os.path.join(os.path.expanduser("~"), "Documents", "SimpleProgra
 os.makedirs(DOCUMENTS_DIR, exist_ok=True)
 DATA_FILENAME = os.path.join(DOCUMENTS_DIR, "text_comparison_data.json")
 
-WINDOW_TITLE = "Text Comparison"
-WINDOW_WIDTH = 740
-WINDOW_HEIGHT = 450
-WINDOW_MIN_WIDTH = 740
-WINDOW_MIN_HEIGHT = 450
-WINDOW_BACKGROUND_COLOR = "#E6E6E6"
 
+# --- Configuration ---
+WINDOW_BACKGROUND_COLOR = "#E6E6E6"
 DIFF_BACKGROUND_COLOR = "#FCE7A8"
-DIFF_TEXT_COLOR = "#411818"
+DIFF_TEXT_COLOR = "#0C0C0C"
 MOVED_BACKGROUND_COLOR = "#CFE3F7"
-MOVED_TEXT_COLOR = "#411818"
+MOVED_TEXT_COLOR = "#0C0C0C"
+
+HINT_COLOR = "#1B5FA8"
+DANGER_COLOR = "#C55E5E"
+GO_COLOR = "#3A8B63"
 
 TITLE_PLACEHOLDER_TEXT = "Optional title..."
 TITLE_PLACEHOLDER_COLOR = "gray"
@@ -47,7 +47,6 @@ TEXT_CONTENT_FONT_STEP = 2
 TEXT_CONTENT_FONT_MIN_SIZE = 10
 TEXT_CONTENT_FONT_MAX_SIZE = 40
 
-SYNC_SCROLL_ACTIVE_COLOR = "black"
 SYNC_SCROLL_INACTIVE_COLOR = "gray"
 
 SCROLL_SPEED_STEP = 1
@@ -55,6 +54,8 @@ SCROLL_SPEED_MIN = 1
 SCROLL_SPEED_MAX = 10
 SCROLL_SPEED_DEFAULT = 3
 
+
+# --- Application ---
 class PlaceholderEntry(tk.Entry):
     def __init__(self, master, placeholder=TITLE_PLACEHOLDER_TEXT, **kwargs):
         super().__init__(master, **kwargs)
@@ -207,7 +208,7 @@ def _sync_scroll(source, target):
 def toggle_dual_scroll():
     dual_scroll_var.set(not dual_scroll_var.get())
     sync_scroll_button.config(
-        fg=SYNC_SCROLL_ACTIVE_COLOR if dual_scroll_var.get() else SYNC_SCROLL_INACTIVE_COLOR
+        fg=HINT_COLOR if dual_scroll_var.get() else SYNC_SCROLL_INACTIVE_COLOR
     )
 
 def load_saved_data():
@@ -266,9 +267,9 @@ def create_gui():
 
     window = tk.Tk()
     window.withdraw()
-    window.title(WINDOW_TITLE)
-    window.geometry(f"{WINDOW_WIDTH}x{WINDOW_HEIGHT}")
-    window.minsize(WINDOW_MIN_WIDTH, WINDOW_MIN_HEIGHT)
+    window.title("Text Comparison")
+    window.geometry("860x480")
+    window.minsize(860, 480)
     if WINDOW_BACKGROUND_COLOR:
         window.configure(bg=WINDOW_BACKGROUND_COLOR)
     center_window(window)
@@ -351,7 +352,7 @@ def create_gui():
 
     tk.Label(font_size_frame, text="Font-Size:", font=button_font, **_bg_kwargs()).pack(
         side=tk.LEFT, padx=(GROUP_INNER_PADDING_X, GROUP_ITEM_SPACING), pady=GROUP_INNER_PADDING_Y)
-    tk.Label(font_size_frame, textvariable=font_size_display_var, font=button_font, width=2, **_bg_kwargs()).pack(
+    tk.Label(font_size_frame, textvariable=font_size_display_var, font=button_font,fg=HINT_COLOR, width=2, **_bg_kwargs()).pack(
         side=tk.LEFT, padx=GROUP_ITEM_SPACING, pady=GROUP_INNER_PADDING_Y)
     tk.Button(font_size_frame, text="➖", command=decrease_font_size).pack(
         side=tk.LEFT, padx=GROUP_ITEM_SPACING, pady=GROUP_INNER_PADDING_Y)
@@ -368,7 +369,7 @@ def create_gui():
 
     tk.Label(scroll_speed_frame, text="Scroll-Speed:", font=button_font, **_bg_kwargs()).pack(
         side=tk.LEFT, padx=(GROUP_INNER_PADDING_X, GROUP_ITEM_SPACING), pady=GROUP_INNER_PADDING_Y)
-    tk.Label(scroll_speed_frame, textvariable=scroll_speed_display_var, font=button_font, width=2, **_bg_kwargs()).pack(
+    tk.Label(scroll_speed_frame, textvariable=scroll_speed_display_var, font=button_font,fg=HINT_COLOR, width=2, **_bg_kwargs()).pack(
         side=tk.LEFT, padx=GROUP_ITEM_SPACING, pady=GROUP_INNER_PADDING_Y)
     tk.Button(scroll_speed_frame, text="➖", command=decrease_scroll_speed).pack(
         side=tk.LEFT, padx=GROUP_ITEM_SPACING, pady=GROUP_INNER_PADDING_Y)
@@ -386,7 +387,7 @@ def create_gui():
 
     sync_scroll_button = tk.Button(
         sync_scroll_frame, text="Sync scroll", font=button_font,
-        fg=SYNC_SCROLL_ACTIVE_COLOR, command=toggle_dual_scroll,
+        fg=HINT_COLOR, command=toggle_dual_scroll,
     )
     sync_scroll_button.pack(side=tk.LEFT, padx=GROUP_INNER_PADDING_X, pady=GROUP_INNER_PADDING_Y)
 
@@ -399,9 +400,9 @@ def create_gui():
     )
     action_frame.pack(side=tk.RIGHT, padx=SECTION_PADDING_X)
 
-    tk.Button(action_frame, text="Compare", font=button_font, command=compare_texts).pack(
+    tk.Button(action_frame, text="Compare", font=button_font,fg=GO_COLOR, command=compare_texts).pack(
         side=tk.LEFT, padx=(GROUP_INNER_PADDING_X, GROUP_ITEM_SPACING), pady=GROUP_INNER_PADDING_Y)
-    tk.Button(action_frame, text="Clear", font=button_font, fg="#C55E5E", command=clear_texts).pack(
+    tk.Button(action_frame, text="Clear", font=button_font, fg=DANGER_COLOR, command=clear_texts).pack(
         side=tk.LEFT, padx=(GROUP_ITEM_SPACING, GROUP_INNER_PADDING_X), pady=GROUP_INNER_PADDING_Y)
 
     window.bind_all("<Control-plus>", increase_font_size)

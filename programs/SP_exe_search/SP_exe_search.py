@@ -33,7 +33,6 @@ SORT_OPTIONS = [
     "Size (Smallest)",
     "Size (Largest)",
 ]
-
 DOUBLE_OPEN_GUARD_SECONDS = 0.4  # avoids opening the same folder twice on a double-click
 
 CACHE_HINT_COLOR = "#1B5FA8"
@@ -45,14 +44,18 @@ os.makedirs(DOCUMENTS_DIR, exist_ok=True)
 CACHE_DIR = os.path.join(DOCUMENTS_DIR, "cache")
 os.makedirs(CACHE_DIR, exist_ok=True)
 
+
 # --- Helper functions ---
 def open_directory(path):
-    if os.name == "nt":
-        os.startfile(path)
-    elif sys.platform == "darwin":
-        os.system(f'open "{path}"')
-    else:
-        os.system(f'xdg-open "{path}"')
+    try:
+        if os.name == "nt":
+                os.startfile(path)
+        elif sys.platform.startswith("darwin"):
+                subprocess.run(["open", path])
+        else:
+                subprocess.run(["xdg-open", path])
+    except Exception as error:
+            messagebox.showerror("Error", f"Cannot open folder:\n{error}")
 
 def safe_getctime(path):
     try:
@@ -139,7 +142,6 @@ class ExeSearchApp:
             root.configure(bg=WINDOW_BACKGROUND_COLOR)
         center_window(root)
 
-        # State
         self.selected_folder = None
         self.found_files = []        # every .exe found in the last/current search (absolute paths)
         self.displayed_paths = []    # absolute paths, in the same order as the currently listed rows
@@ -163,10 +165,10 @@ class ExeSearchApp:
         progress_style.configure(
             "Custom.Horizontal.TProgressbar",
             troughcolor="#929292",
-            background="#3A8B63",
+            background=GO_COLOR,
             bordercolor="#929292",
-            lightcolor="#3A8B63",
-            darkcolor="#3A8B63",
+            lightcolor=GO_COLOR,
+            darkcolor=GO_COLOR,
         )
 
         self.progress_bar = ttk.Progressbar(

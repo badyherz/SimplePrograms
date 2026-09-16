@@ -18,7 +18,7 @@ from helper.SP_footer_picture import add_footer
 from helper.SP_window_utils import center_window
 
 # ====================================
-# Main Data Naming
+# Configuration
 # ====================================
 PROGRAM_NAME = "Simple Expense Manager"
 DATA_FILE_NAME = "spendings_tracker_data.json"
@@ -52,6 +52,10 @@ statistics_window = None
 month_chart_figure = None
 year_chart_figure = None
 WINDOW_BACKGROUND_COLOR = "#E6E6E6"
+
+HINT_COLOR = "#1B5FA8"
+DANGER_COLOR = "#C55E5E"
+GO_COLOR = "#3A8B63"
 
 # ====================================
 # Input Validation
@@ -355,7 +359,7 @@ def change_currency(currency):
     create_month_cards()
 
 # ====================================
-# Main Window
+# Application Initialization
 # ====================================
 root = tk.Tk()
 root.withdraw()
@@ -365,15 +369,15 @@ money_validator = root.register(validate_money)
 root.title("Simple Expense Manager")
 root.geometry("530x650")
 root.minsize(530, 650)
-center_window(root)
 #Keeps everything on the left side
 root.columnconfigure(0, weight=0)
 root.rowconfigure(0, weight=0)
 top_frame = tk.Frame(root)
 top_frame.pack(fill="x", padx=10, pady=10)
-add_footer(root, image_path="assets/footer.png") 
+add_footer(root, image_path="assets/footer.png")
 if WINDOW_BACKGROUND_COLOR:
     root.configure(bg=WINDOW_BACKGROUND_COLOR)
+center_window(root)
 
 # ====================================
 # Toolbar
@@ -459,7 +463,7 @@ month_box.grid(row=0, column=3, padx=5)
 selected_currency = tk.StringVar(value=data.get("currency", "€"))
 
 #Statistics
-statistics_button = tk.Button(control_frame, text=t("button.statistics"), command=lambda: open_statistics_window())
+statistics_button = tk.Button(control_frame, text=t("button.statistics"), fg=HINT_COLOR, command=lambda: open_statistics_window())
 statistics_button.grid(row=0, column=6, padx=10)
 
 def update_year_dropdown():

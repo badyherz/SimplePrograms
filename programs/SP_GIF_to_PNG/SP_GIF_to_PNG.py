@@ -16,6 +16,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 from helper.SP_footer_picture import add_footer
 from helper.SP_window_utils import center_window
 
+# --- Configuration ---
 WINDOW_BACKGROUND_COLOR = "#E6E6E6"
 GROUP_BORDER_COLOR = "#A7A7A7"
 BOX_BORDER_THICKNESS = 0.5
@@ -35,15 +36,22 @@ GIF_DELAY_STEP_MS = 10  # the GIF Graphic Control Extension stores each frame's
                         # delay in hundredths of a second - 10 ms is the smallest
                         # time step a GIF file can actually represent
 
+HINT_COLOR = "#1B5FA8"
+DANGER_COLOR = "#C55E5E"
+GO_COLOR = "#3A8B63"
 
-# --- helpers ---
+
+# --- Helper Functions ---
 def open_folder(path):
-    if os.name == "nt":
-        os.startfile(path)
-    elif shutil.which("open"):
-        subprocess.run(["open", path])
-    else:
-        subprocess.run(["xdg-open", path])
+    try:
+        if os.name == "nt":
+            os.startfile(path)
+        elif sys.platform.startswith("darwin"):
+            subprocess.run(["open", path])
+        else:
+            subprocess.run(["xdg-open", path])
+    except Exception as error:
+        messagebox.showerror("Error", f"Cannot open folder:\n{error}")
 
 def get_unique_destination_path(directory, filename):
     base, ext = os.path.splitext(filename)
@@ -97,6 +105,7 @@ def quantize_duration_to_gif_ms(duration_ms):
     return steps * GIF_DELAY_STEP_MS
 
 
+# --- Application ---
 class GIFtoPNGConverter:
     def __init__(self, root):
         self.root = root
@@ -125,10 +134,10 @@ class GIFtoPNGConverter:
         progress_style.configure(
             "Custom.Horizontal.TProgressbar",
             troughcolor="#929292",
-            background="#3A8B63",
+            background=GO_COLOR,
             bordercolor="#929292",
-            lightcolor="#3A8B63",
-            darkcolor="#3A8B63",
+            lightcolor=GO_COLOR,
+            darkcolor=GO_COLOR,
         )
 
         self.progress_bar = ttk.Progressbar(
@@ -162,7 +171,7 @@ class GIFtoPNGConverter:
         self.gif_button.pack(padx=BOX_INTERNAL_PADDING, pady=(BOX_INTERNAL_PADDING, 2))
 
         self.gif_label = tk.Label(
-            selection_box, text="No GIF selected", bg=WINDOW_BACKGROUND_COLOR,
+            selection_box, text="No GIF selected", bg=WINDOW_BACKGROUND_COLOR,fg=HINT_COLOR,
             font=("Segoe UI", 8), wraplength=LABEL_WRAP_LENGTH,
         )
         self.gif_label.pack(padx=BOX_INTERNAL_PADDING, pady=(0, 8))
@@ -173,7 +182,7 @@ class GIFtoPNGConverter:
         self.dir_button.pack(padx=BOX_INTERNAL_PADDING, pady=(0, 2))
 
         self.dir_label = tk.Label(
-            selection_box, text="No directory selected", bg=WINDOW_BACKGROUND_COLOR,
+            selection_box, text="No directory selected", bg=WINDOW_BACKGROUND_COLOR,fg=HINT_COLOR,
             font=("Segoe UI", 8), wraplength=LABEL_WRAP_LENGTH,
         )
         self.dir_label.pack(padx=BOX_INTERNAL_PADDING, pady=(0, 5))
@@ -193,7 +202,7 @@ class GIFtoPNGConverter:
         self.frames_button.pack(padx=BOX_INTERNAL_PADDING, pady=(0, 2))
 
         self.frames_label = tk.Label(
-            selection_box, text="No frames selected", bg=WINDOW_BACKGROUND_COLOR,
+            selection_box, text="No frames selected", bg=WINDOW_BACKGROUND_COLOR,fg=HINT_COLOR,
             font=("Segoe UI", 8), wraplength=LABEL_WRAP_LENGTH,
         )
         self.frames_label.pack(padx=BOX_INTERNAL_PADDING, pady=(0, BOX_INTERNAL_PADDING))
@@ -209,7 +218,7 @@ class GIFtoPNGConverter:
         action_box.pack(fill="x", anchor="nw")
 
         self.convert_button = tk.Button(
-            action_box, text="Convert to PNG", font=button_font, fg="#3A8B63", width=BUTTON_WIDTH,
+            action_box, text="Convert to PNG", font=button_font, fg=GO_COLOR, width=BUTTON_WIDTH,
             command=self.convert_to_png, state=tk.DISABLED,
         )
         self.convert_button.pack(padx=BOX_INTERNAL_PADDING, pady=(BOX_INTERNAL_PADDING, 5))
@@ -217,7 +226,7 @@ class GIFtoPNGConverter:
         tk.Frame(action_box, bg=GROUP_BORDER_COLOR, height=1).pack(fill="x", padx=BOX_INTERNAL_PADDING, pady=(0, 5))
 
         self.create_gif_button = tk.Button(
-            action_box, text="Create GIF...", font=button_font, fg="#3A8B63", width=BUTTON_WIDTH,
+            action_box, text="Create GIF...", font=button_font, fg=GO_COLOR, width=BUTTON_WIDTH,
             command=self.open_gif_creator, state=tk.DISABLED,
         )
         self.create_gif_button.pack(padx=BOX_INTERNAL_PADDING, pady=(0, BOX_INTERNAL_PADDING))
@@ -468,14 +477,14 @@ class GifCreatorWindow(tk.Toplevel):
 
         tk.Label(
             settings_frame, text=f"{len(frame_paths)} frame(s) found",
-            bg=WINDOW_BACKGROUND_COLOR, fg="#666666",
+            bg=WINDOW_BACKGROUND_COLOR, fg=HINT_COLOR,
         ).grid(row=0, column=2, rowspan=2, sticky="e", padx=(20, 0))
         settings_frame.grid_columnconfigure(2, weight=1)
 
         self.effective_duration_var = tk.StringVar()
         tk.Label(
             settings_frame, textvariable=self.effective_duration_var,
-            bg=WINDOW_BACKGROUND_COLOR, fg="#666666", font=("Segoe UI", 8),
+            bg=WINDOW_BACKGROUND_COLOR, fg=HINT_COLOR, font=("Segoe UI", 8),
         ).grid(row=2, column=0, columnspan=2, sticky="w", pady=(2, 0))
 
         # Keeps the hint in sync with every keystroke, so what the label
@@ -510,7 +519,7 @@ class GifCreatorWindow(tk.Toplevel):
         button_row.pack(fill="x", padx=BOX_EXTERNAL_PADDING, pady=BOX_EXTERNAL_PADDING)
 
         self.export_button = tk.Button(
-            button_row, text="Save GIF...", font=button_font, fg="#3A8B63", width=BUTTON_WIDTH, command=self.export_gif
+            button_row, text="Save GIF...", font=button_font, fg=GO_COLOR, width=BUTTON_WIDTH, command=self.export_gif
         )
         self.export_button.pack(side="left")
 
@@ -533,12 +542,12 @@ class GifCreatorWindow(tk.Toplevel):
             duration_ms = parse_duration_ms(self.duration_var.get())
             effective_ms = quantize_duration_to_gif_ms(duration_ms)
             self.effective_duration_var.set(
-                f"Decimals allowed (comma or dot) - plays back at {effective_ms} ms/frame "
+                f"Plays back at {effective_ms} ms/frame "
                 f"(GIF files only support 10ms steps)"
             )
         except ValueError:
             self.effective_duration_var.set(
-                "Enter a duration greater than 0 - decimals allowed, e.g. 0.5 or 0,5"
+                "Please enter a duration greater than 0 (in milliseconds). "
             )
 
     def _load_preview_frames(self):
@@ -546,7 +555,7 @@ class GifCreatorWindow(tk.Toplevel):
             try:
                 with Image.open(path) as img:
                     thumb = img.convert("RGBA")
-                    thumb.thumbnail(PREVIEW_THUMBNAIL_SIZE)
+                    thumb.thumbnail((300, 300))
                     self.preview_photos.append(ImageTk.PhotoImage(thumb))
             except Exception:
                 continue
@@ -588,9 +597,7 @@ class GifCreatorWindow(tk.Toplevel):
         except ValueError:
             messagebox.showwarning(
                 "Invalid duration",
-                "Please enter a duration greater than 0 (in milliseconds). "
-                "Decimals are allowed, using either a comma or a dot as the "
-                "separator, e.g. 0.5, 0,5 or 0.001.",
+                "Please enter a duration greater than 0 (in milliseconds). ",
             )
             return
         # The GIF format itself can only store delays in 10ms steps, so this
@@ -653,6 +660,7 @@ class GifCreatorWindow(tk.Toplevel):
     def open_output_folder(self):
         if self.output_dir:
             open_folder(self.output_dir)
+
 
 if __name__ == "__main__":
     root = tk.Tk()

@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import os
 import json
+import uuid
 from collections import Counter
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -16,9 +18,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 from helper.SP_footer_picture import add_footer
 from helper.SP_window_utils import center_window
 
-# --- Constants ---
-# A common default grading scale (used as a placeholder/example, and as a
-# fallback if the user leaves the grade scale field empty).
+# --- Configuration ---
 DEFAULT_GRADE_SCALE = (
     "1.0=95-100\n"
     "1.3=90-94.9\n"
@@ -37,6 +37,19 @@ PARTICIPANTS_PLACEHOLDER = "e.g.\n87.5\n62\n45"
 
 DEFAULT_FAIL_THRESHOLD = "5.0"
 UNMATCHED_LABEL = "X"
+
+WINDOW_BACKGROUND_COLOR = "#E6E6E6"
+
+HINT_COLOR = "#1B5FA8"
+DANGER_COLOR = "#C55E5E"
+GO_COLOR = "#3A8B63"
+
+DOCUMENTS_DIR = os.path.join(os.path.expanduser("~"), "Documents", "SimplePrograms", "Grade Calculator")
+os.makedirs(DOCUMENTS_DIR, exist_ok=True)
+
+BACKUP_DIR = os.path.join(DOCUMENTS_DIR, "Autosave")
+os.makedirs(BACKUP_DIR, exist_ok=True)
+
 
 # --- Pure logic: parsing, evaluation and statistics ---
 class InputError(Exception):
@@ -309,10 +322,10 @@ def draw_bar_chart(
 
     def bar_color(label: str) -> str:
         if label == UNMATCHED_LABEL:
-            return "#69baf0"
+            return HINT_COLOR
         if fail_threshold is not None and float(label) >= fail_threshold:
-            return "#C55E5E"
-        return "#3A8B63"
+            return DANGER_COLOR
+        return GO_COLOR
 
     items = sorted(data.items(), key=sort_key)
     max_count = max(count for _, count in items) or 1
@@ -426,7 +439,7 @@ def draw_points_histogram(
         fill="#A56D6D", dash=(4, 2), width=2,
     )
     canvas.create_text(
-        mean_x, margin_top - 25, text=f"Mean: {mean:.1f}", fill="#C55E5E", font=("Arial", 8, "bold")
+        mean_x, margin_top - 25, text=f"Mean: {mean:.1f}", fill=DANGER_COLOR, font=("Arial", 8, "bold")
     )
 
 
@@ -460,7 +473,13 @@ def draw_sort_legend(canvas: tk.Canvas, width: int, height: int) -> None:
 class SessionTab(ttk.Frame):
     """A single workspace: inputs on top, structured results below."""
 
-    def __init__(self, master: tk.Widget, app: "GradeCalculatorApp", session: Session):
+    def __init__(
+        self,
+        master: tk.Widget,
+        app: "GradeCalculatorApp",
+        session: Session,
+        backup_id: str | None = None,
+    ):
         super().__init__(master, padding=10)
         self.app = app
         self.session = session
@@ -469,12 +488,14 @@ class SessionTab(ttk.Frame):
         self._last_scores: list[float] | None = None
         self._last_fail_threshold: float | None = None
 
+        self.backup_id = backup_id or uuid.uuid4().hex[:12]
+        self.backup_path = os.path.join(BACKUP_DIR, f"backup_{self.backup_id}.json")
+
         self._build_widgets()
         self.grade_input.set_value(session.grade_scale_text)
         self.participants_input.set_value(session.participants_text)
 
     # --- widget construction ---
-
     def _build_widgets(self) -> None:
         self.columnconfigure(0, weight=1)
         self.columnconfigure(1, weight=1)
@@ -488,7 +509,7 @@ class SessionTab(ttk.Frame):
         input_frame.columnconfigure(0, weight=3)
         input_frame.columnconfigure(1, weight=2)
 
-        ttk.Label(input_frame, text="Grade Scale (Grade=Min-Max)").grid(
+        ttk.Label(input_frame, text="Grade Scale (Format: Grade=Min-Max)").grid(
             row=0, column=0, sticky="w", padx=5, pady=(5, 0)
         )
         ttk.Label(input_frame, text="Participant Scores (one per line)").grid(
@@ -499,18 +520,23 @@ class SessionTab(ttk.Frame):
             input_frame, placeholder=DEFAULT_GRADE_SCALE, width=32, height=11, wrap="none"
         )
         self.grade_input.grid(row=1, column=0, sticky="nsew", padx=(5, 10), pady=5)
+        self.grade_input.bind("<KeyRelease>", self._on_field_edited)
+        self.grade_input.bind("<<Paste>>", self._on_field_edited)
 
         self.participants_input = PlaceholderText(
             input_frame, placeholder=PARTICIPANTS_PLACEHOLDER, width=22, height=11, wrap="none"
         )
         self.participants_input.grid(row=1, column=1, sticky="nsew", padx=(0, 5), pady=5)
+        self.participants_input.bind("<KeyRelease>", self._on_field_edited)
+        self.participants_input.bind("<<Paste>>", self._on_field_edited)
 
         options_frame = ttk.Frame(input_frame)
         options_frame.grid(row=2, column=0, columnspan=2, sticky="w", padx=5, pady=(0, 5))
         ttk.Label(
-            options_frame, text="Fail threshold — a grade \u2265 this value counts as Failed:"
+            options_frame, text="Fail Threshold — a grade \u2265 this value counts as failed:"
         ).pack(side="left")
         self.fail_threshold_var = tk.StringVar(value=self.session.fail_threshold_text)
+        self.fail_threshold_var.trace_add("write", lambda *_: self._on_field_edited())
         ttk.Entry(options_frame, textvariable=self.fail_threshold_var, width=6).pack(
             side="left", padx=5
         )
@@ -591,9 +617,9 @@ class SessionTab(ttk.Frame):
         self.result_table.column("score", width=80, anchor="w")
         self.result_table.column("grade", width=80, anchor="w")
         self.result_table.column("status", width=90, anchor="w")
-        self.result_table.tag_configure("passed", foreground="#3A8B63")
-        self.result_table.tag_configure("failed", foreground="#C55E5E")
-        self.result_table.tag_configure("unmatched", foreground="#69baf0")
+        self.result_table.tag_configure("passed", foreground=GO_COLOR)
+        self.result_table.tag_configure("failed", foreground=DANGER_COLOR)
+        self.result_table.tag_configure("unmatched", foreground=HINT_COLOR)
         self.result_table.grid(row=0, column=1, sticky="nsew", padx=(5, 0), pady=5)
 
         table_scroll = ttk.Scrollbar(
@@ -606,8 +632,41 @@ class SessionTab(ttk.Frame):
         location = self.file_path or "not saved yet"
         return f"Session: {self.session.name}    File: {location}"
 
-    # --- chart resize handlers ---
+    # --- Backup / autosave handling ---
+    def _on_field_edited(self, _event: object = None) -> None:
+        # after_idle lets the widget finish applying the keystroke/paste
+        # before we read its content, so the backup reflects the new text.
+        self.after_idle(self._write_backup)
 
+    def _write_backup(self) -> None:
+        grade_text = self.grade_input.get_value().strip()
+        participants_text = self.participants_input.get_value().strip()
+        if not grade_text and not participants_text:
+            # Nothing worth protecting (still empty/placeholder) — clear out
+            # any stale backup instead of leaving an empty one behind.
+            self.delete_backup()
+            return
+
+        backup_session = Session(
+            name=self.session.name,
+            grade_scale_text=self.grade_input.get_value(),
+            participants_text=self.participants_input.get_value(),
+            fail_threshold_text=self.fail_threshold_var.get(),
+        )
+        try:
+            with open(self.backup_path, "w", encoding="utf-8") as handle:
+                json.dump(backup_session.to_dict(), handle, indent=2)
+        except OSError:
+            pass  # autosave is best-effort and should never interrupt the user
+
+    def delete_backup(self) -> None:
+        try:
+            if os.path.exists(self.backup_path):
+                os.remove(self.backup_path)
+        except OSError:
+            pass
+
+    # --- chart resize handlers ---
     def _on_grades_chart_resize(self, event: tk.Event) -> None:
         if self._last_distribution_grades is not None:
             draw_bar_chart(
@@ -626,7 +685,6 @@ class SessionTab(ttk.Frame):
 
 
     # --- table sorting ---
-
     def _sort_table(self, column: str, reverse: bool) -> None:
         def sort_value(value: str):
             try:
@@ -644,7 +702,6 @@ class SessionTab(ttk.Frame):
         self.result_table.heading(column, command=lambda: self._sort_table(column, not reverse))
 
     # --- core logic ---
-
     def calculate(self) -> None:
         grade_text = self.grade_input.get_value().strip() or DEFAULT_GRADE_SCALE
         participants_text = self.participants_input.get_value().strip()
@@ -708,26 +765,26 @@ class SessionTab(ttk.Frame):
         self.meta_label.config(text=self._meta_text())
 
 
-# --- Application shell: menu bar + tabbed notebook of sessions ---
+# --- Application ---
 class GradeCalculatorApp:
-    """Owns the main window, the menu bar, and the notebook of session tabs."""
-
     def __init__(self, root: tk.Tk):
         self.root = root
         self.root.title("Grade Calculator")
         self.root.geometry("820x900")
         self.root.minsize(820, 690)
         add_footer(root, image_path="assets/footer.png")
+        if WINDOW_BACKGROUND_COLOR:
+            root.configure(bg=WINDOW_BACKGROUND_COLOR)
         center_window(root)
 
         self.notebook = ttk.Notebook(root)
         self.notebook.pack(fill="both", expand=True)
 
         self._build_menu()
-        self.new_tab()
+        if not self._restore_backups():
+            self.new_tab()
 
     # --- menu ---
-
     def _build_menu(self) -> None:
         menubar = tk.Menu(self.root)
 
@@ -761,13 +818,12 @@ class GradeCalculatorApp:
         self.root.bind("<Control-w>", lambda _e: self.close_current_tab())
 
     # --- tab management ---
-
     def _current_tab(self) -> SessionTab | None:
         if not self.notebook.tabs():
             return None
         return self.notebook.nametowidget(self.notebook.select())
 
-    def new_tab(self, session: Session | None = None) -> SessionTab:
+    def new_tab(self, session: Session | None = None, backup_id: str | None = None) -> SessionTab:
         if session is None:
             count = len(self.notebook.tabs()) + 1
             session = Session(
@@ -775,7 +831,7 @@ class GradeCalculatorApp:
                 grade_scale_text="",
                 participants_text="",
             )
-        tab = SessionTab(self.notebook, self, session)
+        tab = SessionTab(self.notebook, self, session, backup_id=backup_id)
         self.notebook.add(tab, text=session.name)
         self.notebook.select(tab)
         return tab
@@ -789,11 +845,47 @@ class GradeCalculatorApp:
             return
         self.notebook.forget(tab)
 
-    # --- file I/O ---
+    # --- Backup recovery ---
+    def _restore_backups(self) -> bool:
+        if not os.path.isdir(BACKUP_DIR):
+            return False
 
+        backup_files = sorted(
+            name
+            for name in os.listdir(BACKUP_DIR)
+            if name.startswith("backup_") and name.endswith(".json")
+        )
+        if not backup_files:
+            return False
+
+        restored = 0
+        for filename in backup_files:
+            backup_id = filename[len("backup_") : -len(".json")]
+            path = os.path.join(BACKUP_DIR, filename)
+            try:
+                with open(path, "r", encoding="utf-8") as handle:
+                    data = json.load(handle)
+            except (OSError, json.JSONDecodeError):
+                continue  # skip a corrupt backup rather than blocking startup
+
+            session = Session.from_dict(data, file_path=None)
+            tab = self.new_tab(session, backup_id=backup_id)
+            tab.calculate()
+            restored += 1
+
+        if restored:
+            messagebox.showinfo(
+                "Unsaved Sessions Restored",
+                f"{restored} unsaved session(s) from a previous run were found and "
+                "have been restored, each in its own tab. Save the ones you want to keep.",
+            )
+        return restored > 0
+
+    # --- file I/O ---
     def open_sessions(self) -> None:
         paths = filedialog.askopenfilenames(
             title="Open Session(s)",
+            initialdir=DOCUMENTS_DIR,
             filetypes=[("Grade Calculator Session", "*.json"), ("All Files", "*.*")],
         )
         for path in paths:
@@ -817,6 +909,7 @@ class GradeCalculatorApp:
         if force_dialog or not path:
             path = filedialog.asksaveasfilename(
                 title="Save Session",
+                initialdir=DOCUMENTS_DIR,
                 defaultextension=".json",
                 filetypes=[("Grade Calculator Session", "*.json")],
                 initialfile=f"{tab.session.name}.json",
@@ -840,6 +933,7 @@ class GradeCalculatorApp:
 
         tab.file_path = path
         tab.session.name = session_to_save.name
+        tab.delete_backup()  # a real save makes the autosave safety copy unnecessary
         tab.refresh_meta()
         self.notebook.tab(tab, text=session_to_save.name)
         messagebox.showinfo("Save Session", f"Session saved to:\n{path}")
@@ -851,7 +945,5 @@ def main() -> None:
     GradeCalculatorApp(root)
     root.deiconify()
     root.mainloop()
-
-
 if __name__ == "__main__":
     main()
