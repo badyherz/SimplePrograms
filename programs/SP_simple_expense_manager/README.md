@@ -1,8 +1,8 @@
-Simple Programs: Simple Expense Manager powered by Python
+## Simple Programs: Simple Expense Manager powered by Python
 
 This README is just for additional information about the program.
 There are some nice features for a better user experience, but some are missing or need a bit of manual work.
-The program folder can be found in your local Documents folder under your user.
+The program folder can be found in your local Documents folder in the Simple Programs folder.
 
 **Creating your own language file:**
 The program comes with a default language creation for English, but separate english.json and german.json files are also available.

@@ -13,60 +13,56 @@ Feel free to edit or improve them.
 
 Yes, they are really simple and lack design and cohesion, but they work, and that's the point.
 If you encounter any problems, open an issue, and I'll try to have a look at it.
+I will update them from time to time. You can request features, but I may not implement them or if I do then not regularly.
 
 I build them for Windows with PyInstaller. (Maybe in the future for Linux too)
 Just download what you want from the newest [release](https://github.com/badyherz/SimplePrograms/releases)! Or build them yourself!
 
 ## Below is a list of the programs A to Z:
+Number of programs: **12**
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-**Bulk File Extension Renamer**
+**Bulk File-Extension Changer**
 
 A program to rename the file extension on one or multiple files. This does not convert them! But if you know what you're doing, this can be handy. Used it in multiple ways, like changing .webp to .jpg.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-**Bulk File Name Renamer**
+**Bulk File-Name Changer**
 
-A program to change or delete specific file name parts of one or multiple files.
+A program to change or delete specific parts of the file name, of one or multiple files.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-**Bulk File Renamer for Series**
+**Bulk File-Renamer for TV Series**
 
-This was created for renaming series for home media use, because who wants to rename 30 files or so?
+This was created for renaming TV series for home media use, because who wants to rename 30 files or so?
 Can be useful for general renaming too.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 **EXE File Search**
 
-This lets you search for .EXE files in folders and sort them. Created because I wanted to find a specific old hidden program.
+This lets you search for .EXE files in folders and sort them. Created because I wanted to find a specific old hidden program. Has a simple cache system to remember searches.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 **GIF to PNG Converter**
 
-With this, you can extract all the frames of a .GIF and save them in a folder as .PNG files. Used for creating manual gifs.
+With this, you can extract all the frames of a .GIF and save them in a folder as .PNG files. Used for creating manual gifs. Can also create simple gifs from frames.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-**HEX Encoder and Decoder**
+**Grade Calculator**
 
-Well. You can Encode and Decode Hexadecimal Code. Used it for hidden messages in games.
+Used this to see a simple overview with graphs of the results of exams, needs manual input for each exam.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-**Metadata Cleaner**
+**Metadata Remover**
 
 Simple program to delete almost all metadata from images and videos (need FFmpeg for videos). I used it for uploading simple images onto the internet.
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-**Series Tracker**
-
-This lets you track tv series. Add and remove episodes. Has a progress bar. An archive to clean up a bit. Import and export functions to save files for your data. And it automatically saves when you close the program.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -76,14 +72,26 @@ A program to, at the moment, track electricity and grocery expenses with all the
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-**Simulated Mouse Button Holding**
+**Simulated Button Pressing**
 
-Simulates key presses for the mouse with custom activation key and hold and toggle option. Works most of the time, but sometimes it breaks (no idea why, could not be bothered). I used it to afk farm a block farm in Minecraft.
+Simulates key presses for the mouse and keyboard with custom activation key and hold and toggle option. Intended for gaming.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 **Text Comparison**
 
 This can compare two strings of text for you and highlights the difference. I used it to compare hash codes. But can also be used for bigger texts.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+**Text Encoder and Decoder**
+
+Well. You can Encode and Decode text/strings with different methods (a few, may get more in the future). Used it for hidden messages in games and hidden web links.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+**TV Series Tracker**
+
+This lets you track tv series. Add and remove episodes. Has a progress bar. An archive to clean up a bit. Import and export functions to save files for your data. And it automatically saves when you close the program.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
