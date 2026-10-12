@@ -13,7 +13,7 @@ from datetime import datetime
 if sys.platform != "win32":
     sys.exit("This Overlay works only under Windows.")
 
-VERSION = "4"
+VERSION = "2.1"
 CONFIG_NAME = "mcd_clock_overlay.ini"
 LOG_NAME = "mcd_clock_overlay.log"
 MUTEX_NAME = "MCD_Clock_Overlay_Mutex"
@@ -30,6 +30,7 @@ SPEC = [
     ("margin", "30", "Distance from window edge in pixels (0-500)."),
     ("text_color", "#FFFFFF", "Text color as a hex value (Minecraft-White)."),
     ("shadow_color", "#3F3F3F", "Shadow color as a hex value (Minecraft-Shadow)."),
+    ("trans_shadow", "false", "Shadows of the digits in the colors of the trans-flag! (true/false)."),
     ("hotkey_corner", "F8", "Key for switching the corner (F1-F12 or a single letter/number)."),
     ("hotkey_toggle", "F9", "Key for hiding and showing the clock."),
     ("game_title_part", "Dungeons", "Part of the window title where the game is recognized."),
@@ -138,6 +139,7 @@ class Settings:
         self.margin = pick("margin", lambda s: parse_int(s, 0, 500))
         self.text_color = pick("text_color", parse_color)
         self.shadow_color = pick("shadow_color", parse_color)
+        self.trans_shadow = pick("trans_shadow", parse_bool)
         self.hotkey_corner = pick("hotkey_corner", parse_key)
         self.hotkey_toggle = pick("hotkey_toggle", parse_key)
         self.game_title_part = pick("game_title_part", parse_str)
@@ -189,6 +191,35 @@ FONT = {
     ":": [".", ".", "#", ".", "#", ".", "."],
 }
 GLYPH_H = 7
+
+# Colors of the trans-flag: blue, pink, white, pink, blue
+STRIPES = ["#5BCEFA", "#F5A9B8", "#FFFFFF", "#F5A9B8", "#5BCEFA"]
+SHADOW_OFFSET = 1   # Shadow: 1 pixel to the right and bottom
+
+# Colon: gap = additional spacing left/right, rows = rows of the two dots.
+COLON = dict(gap=0, rows=(2, 4))
+
+def stripe_color(row, total_rows):
+    """Flag color for a whole pixel row: the five stripes are distributed across the rows."""
+    return STRIPES[min(4, int((row + 0.5) * 5 / total_rows))]
+
+def layout_text(text, colon=COLON):
+    """Sets the text together from pixels: (digit pixels, dot pixels, width in pixels)."""
+    digits, dots, x = [], [], 0
+    for ch in text:
+        if ch == ":":
+            x += colon["gap"]
+            for top in colon["rows"]:
+                dots.append((x, top))
+            x += 1 + 1 + colon["gap"]
+        else:
+            glyph = FONT[ch]
+            for row, line in enumerate(glyph):
+                for col, cell in enumerate(line):
+                    if cell == "#":
+                        digits.append((x + col, row))
+            x += len(glyph[0]) + 1
+    return digits, dots, x - 1
 
 
 # --- Windows-API-Access ---
@@ -314,10 +345,7 @@ def launch_game_from_args():
     return None
 
 
-# --------------------------- Darstellung ---------------------------
-def text_width_px(text):
-    return sum(len(FONT[c][0]) for c in text) + (len(text) - 1)
-
+# --- Presentation ---
 class ClockOverlay:
     def __init__(self, cfg):
         self.cfg = cfg
@@ -341,8 +369,9 @@ class ClockOverlay:
         self.root.attributes("-transparentcolor", TRANSPARENT)
 
         sample = "00:00:00" if cfg.show_seconds else "00:00"
-        self.cw = (text_width_px(sample) + 1) * cfg.scale   # +1 pixel for shadow
-        self.ch = (GLYPH_H + 1) * cfg.scale
+        sample_width = layout_text(sample)[2]
+        self.cw = (sample_width + SHADOW_OFFSET) * cfg.scale   # + Space for the shadow
+        self.ch = (GLYPH_H + SHADOW_OFFSET) * cfg.scale
         self.canvas = tk.Canvas(self.root, width=self.cw, height=self.ch,
                                 bg=TRANSPARENT, highlightthickness=0, bd=0)
         self.canvas.pack()
@@ -350,10 +379,10 @@ class ClockOverlay:
         self.apply_window_style()
         self.root.withdraw()       # only show when the game is running and in the foreground
         self.shown = False
-        log("Overlay ready, waiting for the game window.")
+        log(f"Overlay ready, waiting for the game window. Trans-Shadows: {cfg.trans_shadow}")
         self.tick()
 
-    # ---- Window Style ----
+    # --- Window Style ---
     def apply_window_style(self):
         wid = self.root.winfo_id()
         hwnd = user32.GetParent(wid) or wid
@@ -363,20 +392,25 @@ class ClockOverlay:
         self.root.attributes("-topmost", True)
 
     def draw(self, text):
-        s = self.cfg.scale
+        cfg = self.cfg
+        sc = cfg.scale
+        digits, dots, _ = layout_text(text)
         self.canvas.delete("all")
-        for offset, color in ((1, self.cfg.shadow_color), (0, self.cfg.text_color)):
-            x = 0
-            for ch in text:
-                glyph = FONT[ch]
-                for row, line in enumerate(glyph):
-                    for col, cell in enumerate(line):
-                        if cell == "#":
-                            px = (x + col + offset) * s
-                            py = (row + offset) * s
-                            self.canvas.create_rectangle(px, py, px + s, py + s,
-                                                         fill=color, outline="")
-                x += len(glyph[0]) + 1
+
+        def cell(col, row, color):
+            x0, y0 = col * sc, row * sc
+            self.canvas.create_rectangle(x0, y0, x0 + sc, y0 + sc, fill=color, outline="")
+
+        total_rows = GLYPH_H + SHADOW_OFFSET
+        for col, row in digits:
+            color = (stripe_color(row + SHADOW_OFFSET, total_rows)
+                     if cfg.trans_shadow else cfg.shadow_color)
+            cell(col + SHADOW_OFFSET, row + SHADOW_OFFSET, color)
+        for col, row in dots:
+            cell(col + SHADOW_OFFSET, row + SHADOW_OFFSET, cfg.shadow_color)
+
+        for col, row in digits + dots:
+            cell(col, row, cfg.text_color)
 
     def place(self, area):
         ax, ay, aw, ah = area
@@ -388,7 +422,7 @@ class ClockOverlay:
             self.root.geometry(f"+{x}+{y}")
             self.last_pos = (x, y)
 
-    # ---- Game Tracking ----
+    # --- Game Tracking ---
     def track_game(self, hwnd):
         """Tracks the game process to detect when it exits."""
         pid = window_pid(hwnd)
@@ -422,7 +456,7 @@ class ClockOverlay:
         self.release_process()
         self.root.destroy()
 
-    # ---- Hotkeys ----
+    # --- Hotkeys ---
     def handle_hotkeys(self):
         for entry in self.keys:
             vk, action, was_down = entry
@@ -435,7 +469,7 @@ class ClockOverlay:
                     self.hidden_by_user = not self.hidden_by_user
             entry[2] = down
 
-    # ---- Main Loop ----
+    # --- Main Loop ---
     def tick(self):
         self.handle_hotkeys()
 
